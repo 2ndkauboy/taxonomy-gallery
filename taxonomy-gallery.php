@@ -1,6 +1,6 @@
 <?php
 /*
- * Plugin Name: Taxonomy Gallery Shortcode
+ * Plugin Name: Taxonomy Gallery
  * Description: Adding the shortcode "taxonomy_gallery" to list all images for a given taxonomy
  * Version: 0.2
  * Author: Bernhard Kau
