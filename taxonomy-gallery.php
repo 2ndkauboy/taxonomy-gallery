@@ -2,9 +2,13 @@
 /*
  * Plugin Name: Taxonomy Gallery
  * Description: Adding the shortcode "taxonomy_gallery" to list all images for a given taxonomy
- * Version: 0.2
+ * Version: 1.0.0
  * Author: Bernhard Kau
  * Author URI: http://kau-boys.de
+ * Plugin URI: https://github.com/2ndkauboy/taxonomy-gallery
+ * Text Domain: taxonomy-gallery
+ * License: GPLv3
+ * License URI: http://www.gnu.org/licenses/gpl-3.0
  */
 
 function tgs_add_tags_to_attachments() {
@@ -14,67 +18,37 @@ add_action( 'init' , 'tgs_add_tags_to_attachments' );
 
 function tgs_taxonomy_gallery_shortcode( $atts ) {
 
-	$gallery = '';
-
-	extract( shortcode_atts( array(
+	$a = shortcode_atts( array(
 		'category_id' => '',
 		'category_name' => '',
 		'tag_id' => '',
 		'tag_name' => '',
-		'size' => 'full',
-		'link' => '',
-		'class' => '',
-	), $atts ) );
+	), $atts );
 
-	if ( !empty( $category_id ) ) {
-		$query = 'cat=' . $category_id;
-	} elseif ( !empty( $category_name ) ) {
-		$query = 'category_name=' . $category_name;
-	} elseif ( !empty( $tag_id ) ) {
-		$query = 'tag_id=' . $tag_id;
-	} elseif ( !empty( $tag_name ) ) {
-		$query = 'tag=' . $tag_name;
+	if ( !empty( $a['category_id'] ) ) {
+		$query_params = 'cat=' . $a['category_id'];
+	} elseif ( !empty( $a['category_name'] ) ) {
+		$query_params = 'category_name=' . $a['category_name'];
+	} elseif ( !empty( $a['tag_id'] ) ) {
+		$query_params = 'tag_id=' . $a['tag_id'];
+	} elseif ( !empty( $a['tag_name'] ) ) {
+		$query_params = 'tag=' . $a['tag_name'];
 	}
 
-	if ( empty( $query ) ) {
+	if ( empty( $query_params ) ) {
 		return false;
 	}
 
-	$my_query = new WP_Query( $query . '&post_type=attachment&post_status=inherit&posts_per_page=-1' );
+	$taxonomy_query = new WP_Query( $query_params . '&post_type=attachment&post_status=inherit&posts_per_page=-1&fields=ids' );
 
-	if ( $my_query->have_posts() ) {
-		$gallery .= '<div class="taxonomy-gallery">';
+	if ( $taxonomy_query->have_posts() ) {
+		$atts[ 'ids' ] = array();
 
-		while ( $my_query->have_posts() ) {
-			$my_query->the_post();
-			$post = get_post();
-
-			$image_attr = array(
-				'class'	=> "taxonomy-gallery-img attachment-$size $class",
-				'alt' => esc_attr( trim( strip_tags( $post->post_title ) ) )
-			);
-
-			$image = wp_get_attachment_image( $post->ID, $size, false, $image_attr );
-
-			if( 'attachment_page' == $link ) {
-				$image_link = get_attachment_link( $post->ID );
-			} elseif( 'full_image' == $link ) {
-				$image_attributes = wp_get_attachment_image_src( $post->ID, 'full' );
-				$image_link = $image_attributes[0];
-			} else {
-				$image_link = '';
-			}
-
-			if ( empty( $image_link ) ) {
-				$gallery .= $image;
-			} else {
-				$gallery .= '<a href="' . esc_attr( $image_link ) . '">' . $image . '</a>';
-			}
+		foreach ( $taxonomy_query->posts as $post_id ) {
+			$atts['ids'][] = $post_id;
 		}
-
-		$gallery .= '</div>';
 	}
 
-	return $gallery;
+	return gallery_shortcode( $atts );
 }
 add_shortcode( 'taxonomy_gallery', 'tgs_taxonomy_gallery_shortcode' );
