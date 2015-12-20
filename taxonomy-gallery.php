@@ -14,26 +14,21 @@ add_action( 'init' , 'tgs_add_tags_to_attachments' );
 
 function tgs_taxonomy_gallery_shortcode( $atts ) {
 
-	$gallery = '';
-
-	extract( shortcode_atts( array(
+	$a = shortcode_atts( array(
 		'category_id' => '',
 		'category_name' => '',
 		'tag_id' => '',
 		'tag_name' => '',
-		'size' => 'full',
-		'link' => '',
-		'class' => '',
-	), $atts ) );
+	), $atts );
 
-	if ( !empty( $category_id ) ) {
-		$query = 'cat=' . $category_id;
-	} elseif ( !empty( $category_name ) ) {
-		$query = 'category_name=' . $category_name;
-	} elseif ( !empty( $tag_id ) ) {
-		$query = 'tag_id=' . $tag_id;
-	} elseif ( !empty( $tag_name ) ) {
-		$query = 'tag=' . $tag_name;
+	if ( !empty( $a['category_id'] ) ) {
+		$query = 'cat=' . $a['category_id'];
+	} elseif ( !empty( $a['category_name'] ) ) {
+		$query = 'category_name=' . $a['category_name'];
+	} elseif ( !empty( $a['tag_id'] ) ) {
+		$query = 'tag_id=' . $a['tag_id'];
+	} elseif ( !empty( $a['tag_name'] ) ) {
+		$query = 'tag=' . $a['tag_name'];
 	}
 
 	if ( empty( $query ) ) {
